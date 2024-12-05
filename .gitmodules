@@ -1,0 +1,3 @@
+[submodule "n_vnc/src/main/cpp/libvncserver"]
+	path = n_vnc/src/main/cpp/libvncserver
+	url = git@github.com:Sakurababycat/libvncserver.git

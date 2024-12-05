@@ -1,0 +1,48 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "ApplicationAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "ApplicationAbility_label",
+      "value": "SimpleVnc"
+    },
+    {
+      "name": "passwd_input",
+      "value": "密码:"
+    },
+    {
+      "name": "address_input",
+      "value": "地址:"
+    },
+    {
+      "name": "address_input_notice",
+      "value": "请输入地址"
+    },
+    {
+      "name": "passwd_input_notice",
+      "value": "输入密码"
+    },
+    {
+      "name": "history_selector_title",
+      "value": "历史记录:"
+    },
+    {
+      "name": "history_selector_notice",
+      "value": "点击选择"
+    },
+    {
+      "name": "choice_ok",
+      "value": "确认"
+    },
+    {
+      "name": "choice_cancle",
+      "value": "取消"
+    }
+  ]
+}

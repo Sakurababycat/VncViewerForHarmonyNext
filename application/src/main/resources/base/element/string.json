@@ -1,0 +1,48 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "ApplicationAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "ApplicationAbility_label",
+      "value": "SimpleVnc"
+    },
+    {
+      "name": "address_input",
+      "value": "address: "
+    },
+    {
+      "name": "passwd_input",
+      "value": "passwd: "
+    },
+    {
+      "name": "address_input_notice",
+      "value": "input connection address"
+    },
+    {
+      "name": "passwd_input_notice",
+      "value": "input password"
+    },
+    {
+      "name": "history_selector_title",
+      "value": "history"
+    },
+    {
+      "name": "history_selector_notice",
+      "value": "click to pick"
+    },
+    {
+      "name": "choice_ok",
+      "value": "ok"
+    },
+    {
+      "name": "choice_cancle",
+      "value": "no"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "routerMap": [
+    {
+      "name": "VncViewerPage",
+      "pageSourceFile": "src/main/ets/pages/VncViewerPage.ets",
+      "buildFunction": "VncViewerPageBuilder",
+      "data": {
+        "description": "route to VncViewerPage"
+      }
+    }
+  ]
+}

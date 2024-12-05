@@ -1,0 +1,1 @@
+export { update, vncInit, vncClose, UpdateInfo, mouseEvent, keyEvent } from './src/main/ets/utils/napi'
