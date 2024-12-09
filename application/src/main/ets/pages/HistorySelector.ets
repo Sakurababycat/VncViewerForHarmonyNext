@@ -22,10 +22,6 @@ export struct HistorySelector {
           ForEach(this.historyStorage?.records.slice().reverse(), (item: ConnectionRecord, index) => {
             ListItem() {
               Column() {
-                Text()
-                  .size({ width: "100%", height: "2px" })
-                  .backgroundColor("#bebbc1")
-                  .margin({ top: 2, bottom: 10 })
                 Row() {
                   Radio({ value: `${index}`, group: 'radioGroup' })
                     .onChange((isChecked: boolean) => {
@@ -62,6 +58,12 @@ export struct HistorySelector {
             }
           })
         }
+        .divider({
+          strokeWidth: '2px',
+          color: "#bebbc1",
+          startMargin: 10,
+          endMargin: 10
+        })
         .width('100%')
         .height(200)
         .padding(10)

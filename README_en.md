@@ -54,7 +54,7 @@ control functionalities.
 
 - [x] Basic functionality
 - [ ] Unexpected disconnection handling
-- [ ] Mouse scroll events
+- [x] Mouse scroll events
 - [ ] Custom key mappings
 - [ ] Clipboard
 - [ ] File transfer

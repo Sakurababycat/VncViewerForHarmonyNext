@@ -3,7 +3,7 @@ import { display, router, window } from '@kit.ArkUI'
 import { update, vncInit, vncClose, UpdateInfo, mouseEvent, keyEvent } from 'n_vnc'
 import { image } from '@kit.ImageKit'
 import { ArkTSUtils } from '@kit.ArkTS'
-import { actionMapStr, buttonMapStr, button2rfb, keyTypeMapStr } from '../utils/KeyMap'
+import { actionMapStr, buttonMapStr, button2rfb, keyTypeMapStr, ScrollButtonMask } from '../utils/KeyMap'
 
 export class VncClient {
   private pixelArray: Uint8Array = new Uint8Array([]);
@@ -83,6 +83,7 @@ struct ViewPage {
   private mouseY: number = -1
   private windowScale: number = 1
   private mouseStat: number = 0
+  private scroller = new Scroller()
 
   onPageHide(): void {
     this.vncClient?.close()
@@ -156,23 +157,47 @@ struct ViewPage {
           .height("100%")
           .width("100%")
         RelativeContainer() {
-          Button() {
-            Image($r('app.media.arrow_left'))
-              .height("100%")
+          Column() {
+            Button() {
+              Image($r('app.media.arrow_left'))
+                .height("100%")
+            }
+            .type(ButtonType.Capsule)
+            .backgroundColor('#cfffafaf')
+            .width(40)
+            .height(30)
+            .alignRules({
+              top: { anchor: '__container__', align: VerticalAlign.Top },
+              left: { anchor: '__container__', align: HorizontalAlign.Start }
+            })
+            .margin({ left: 20, top: 20 })
+            .onClick((event) => {
+              console.info('returning to the first page.')
+              this.pageStack.pop()
+            })
+            .onMouse((event) => event.stopPropagation())
+
+            Scroll(this.scroller) {
+              Text()
+                .height(4000)
+                .width('100%')
+            }
+            .scrollBar(BarState.Off)
+            .onWillScroll((xOffset: number, yOffset: number, scrollState: ScrollState, scrollSource: ScrollSource) => {
+              if (scrollSource == ScrollSource.OTHER_USER_INPUT) {
+                // console.info(`${xOffset}, ${yOffset}, ${scrollState.toString()}, ${scrollSource.toString()}`)
+                this.vncClient?.onMouseEvent(this.mouseX, this.mouseY,
+                  yOffset > 0 ? ScrollButtonMask.yForward : ScrollButtonMask.yBack)
+                this.scroller.scrollTo({ xOffset: 100, yOffset: 2000 })
+              }
+            })
+            .onScrollEdge(() => {
+              this.scroller.scrollTo({ xOffset: 100, yOffset: 2000 })
+            })
+            .height('100%')
+            .width('100%')
           }
-          .type(ButtonType.Capsule)
-          .backgroundColor('#cfffafaf')
-          .width(40)
-          .height(30)
-          .alignRules({
-            top: { anchor: '__container__', align: VerticalAlign.Top },
-            left: { anchor: '__container__', align: HorizontalAlign.Start }
-          })
-          .margin({ left: 20, top: 20 })
-          .onClick(() => {
-            console.info('returning to the first page.')
-            this.pageStack.pop()
-          })
+          .alignItems(HorizontalAlign.Start)
         }
       }
       .height('100%')

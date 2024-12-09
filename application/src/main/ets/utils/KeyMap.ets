@@ -22,3 +22,10 @@ export const keyTypeMapStr: Map<number, string> = new Map([
   [KeyType.Down, "down"],
   [KeyType.Up, "up"]
 ])
+
+export enum ScrollButtonMask {
+  yBack = 1 << 3,
+  yForward = 1 << 4,
+  xBack = 1 << 5,
+  xForward = 1 << 6
+}
