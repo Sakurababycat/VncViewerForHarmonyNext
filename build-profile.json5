@@ -1,0 +1,80 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/29416/.ohos/config/openharmony/default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.cer",
+          "storePassword": "0000001AF2FF866DC25C79E04D053D2588B15F2AD8C3EDFF3357A4F9FE8EF12858AB77F17FBCEF9D6F75",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A4CC1841BB457B7DF9202CC9DD3776ED5F0FFD74D4AF28DB2A09CB8AC9F3FBFB9F3D3E92F61B9",
+          "profile": "C:/Users/29416/.ohos/config/openharmony/default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/29416/.ohos/config/openharmony/default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.p12"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": 12,
+        "compileSdkVersion": 12,
+        "targetSdkVersion": 12,
+        "runtimeOS": "OpenHarmony",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      //      {
+      //        "name": "default",
+      //        "runtimeOS": "HarmonyOS",
+      //        // "arkTSVersion": "1.0",
+      //        "compatibleSdkVersion": "5.0.0(12)",
+      //        "buildOption": {
+      //          "strictMode": {
+      //            "caseSensitiveCheck": true,
+      //            "useNormalizedOHMUrl": true
+      //          }
+      //        }
+      //      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "application",
+      "srcPath": "./application",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "n_vnc",
+      "srcPath": "./n_vnc",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}

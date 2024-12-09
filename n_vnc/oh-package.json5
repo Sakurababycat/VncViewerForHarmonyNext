@@ -1,0 +1,12 @@
+{
+  "name": "n_vnc",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "Index.ets",
+  "author": "",
+  "license": "Apache-2.0",
+  "packageType": "InterfaceHar",
+  "dependencies": {
+    "libn_vnc.so": "file:./src/main/cpp/types/libn_vnc"
+  }
+}

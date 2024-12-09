@@ -1,0 +1,53 @@
+{
+  "module": {
+    "name": "application",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "ApplicationAbility",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "routerMap": "$profile:router_map",
+    "abilities": [
+      {
+        "name": "ApplicationAbility",
+        "srcEntry": "./ets/applicationability/ApplicationAbility.ets",
+        "description": "$string:ApplicationAbility_desc",
+        "icon": "$media:layered_image",
+        "label": "$string:ApplicationAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "orientation": "landscape",
+        "exported": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "ApplicationBackupAbility",
+        "srcEntry": "./ets/applicationbackupability/ApplicationBackupAbility.ets",
+        "type": "backup",
+        "exported": false,
+        "metadata": [
+          {
+            "name": "ohos.extension.backup",
+            "resource": "$profile:backup_config"
+          }
+        ]
+      }
+    ]
+  }
+}
