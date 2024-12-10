@@ -1,4 +1,4 @@
-import { VncClient } from 'ets/pages/VncViewerPage'
+import { VncClient } from 'ets/utils/VncClient'
 import { HistorySelector } from './HistorySelector'
 import { HistoryStorage } from '../utils/FileStorage'
 
@@ -137,17 +137,24 @@ struct Index {
             .width('10%')
             .onClick(
               () => {
-                console.info(`path to the viewer page.`)
                 let vncClient = new VncClient()
                 let address = this.address.split(':')
                 let passwd = this.passwd
                 let ip = address[0]
                 let port = Number.parseInt(address[1])
                 this.history.append({ address: this.address, passwd: this.passwd })
-                vncClient.init(ip, port, passwd)
-                this.pageStack.pushPath({
-                  name: "VncViewerPage", param: vncClient
-                })
+                if (vncClient.init(ip, port, passwd)) {
+                  console.info(`path to the viewer page.`)
+                  this.pageStack.pushPath({
+                    name: "VncViewerPage", param: vncClient
+                  })
+                } else {
+                  AlertDialog.show({
+                    title: $r('app.string.connect_fail_title'),
+                    message: $r('app.string.connect_fail_message'),
+                    alignment: DialogAlignment.Center,
+                  })
+                }
               })
           }
           .alignRules({

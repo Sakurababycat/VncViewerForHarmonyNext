@@ -53,7 +53,7 @@ control functionalities.
 ## To-Do
 
 - [x] Basic functionality
-- [ ] Unexpected disconnection handling
+- [x] Unexpected disconnection handling
 - [x] Mouse scroll events
 - [ ] Custom key mappings
 - [ ] Clipboard

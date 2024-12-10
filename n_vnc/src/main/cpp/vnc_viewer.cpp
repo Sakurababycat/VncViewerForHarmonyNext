@@ -8,6 +8,7 @@
 #include "rfb/rfb.h"
 #include <cstddef>
 #include <cstdint>
+#include <signal.h>
 #include <stdexcept>
 #include <unistd.h>
 
@@ -94,6 +95,8 @@ void VncViewer::setViewer(const char *address, int port, const char *passwd) {
     VncViewer::cl->listenPort = LISTEN_PORT_OFFSET;
     VncViewer::cl->listen6Port = LISTEN_PORT_OFFSET;
     VncViewer::cl->GetPassword = VncViewer::getPasswd;
+    VncViewer::cl->connectTimeout = 1;
+    VncViewer::cl->readTimeout = 1;
 }
 
 void VncViewer::initViewer(VncViewer::onResizeCallback onResize) {

@@ -43,6 +43,14 @@
     {
       "name": "choice_cancle",
       "value": "cancel"
+    },
+    {
+      "name": "connect_fail_title",
+      "value": "failed to connect"
+    },
+    {
+      "name": "connect_fail_message",
+      "value": "failed to establish connection to vnc server"
     }
   ]
 }

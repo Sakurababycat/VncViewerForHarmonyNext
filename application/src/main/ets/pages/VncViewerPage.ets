@@ -1,63 +1,8 @@
 // VncViewerPage.ets
-import { display, router, window } from '@kit.ArkUI'
-import { update, vncInit, vncClose, UpdateInfo, mouseEvent, keyEvent } from 'n_vnc'
-import { image } from '@kit.ImageKit'
+import { display } from '@kit.ArkUI'
+import { VncClient } from 'ets/utils/VncClient'
 import { ArkTSUtils } from '@kit.ArkTS'
 import { actionMapStr, buttonMapStr, button2rfb, keyTypeMapStr, ScrollButtonMask } from '../utils/KeyMap'
-
-export class VncClient {
-  private pixelArray: Uint8Array = new Uint8Array([]);
-
-  init(address: string, port: number, passwd: string): void {
-    let a = vncInit(address, port, passwd)
-    this.pixelArray = a
-  }
-
-  close() {
-    vncClose();
-  }
-
-  getUpdatePixelMap(x: UpdateInfo) {
-    // console.info(`updateInfo: ${x}`)
-
-    const bitsPerPixel = 2
-    let freshAreaArray = new Uint8Array(x.h * x.w * bitsPerPixel)
-    for (let i = 0; i < x.h; i++) {
-      const srcStart = ((x.y + i) * x.width + x.x) * bitsPerPixel
-      const srcEnd = srcStart + x.w * bitsPerPixel;
-      const desStart = (i * x.w) * bitsPerPixel
-
-      freshAreaArray.set(this.pixelArray.subarray(srcStart, srcEnd), desStart)
-    }
-
-    let opts: image.InitializationOptions = {
-      alphaType: image.AlphaType.OPAQUE,
-      size: { height: x.h, width: x.w },
-      srcPixelFormat: image.PixelMapFormat.RGB_565,
-      scaleMode: image.ScaleMode.CENTER_CROP,
-      pixelFormat: image.PixelMapFormat.RGB_565,
-      editable: false
-    }
-
-    let pixelMap = image.createPixelMapSync(freshAreaArray.buffer, opts)
-    return pixelMap
-  }
-
-  checkUpdate(onUpdate: (x: UpdateInfo) => void) {
-    // console.info(`check vnc update...`)
-    update((x: Uint8Array) => {
-      this.pixelArray = x
-    }, onUpdate)
-  }
-
-  onMouseEvent(x: number, y: number, buttonMask: number) {
-    mouseEvent(x, y, buttonMask)
-  }
-
-  onKeyEvent(key: number, down: boolean) {
-    keyEvent(key, down)
-  }
-}
 
 @Builder
 export function VncViewerPageBuilder() {
@@ -214,6 +159,19 @@ struct ViewPage {
     .onReady((context) => {
       this.pageStack = context.pathStack
       this.vncClient = this.pageStack.getParamByName("VncViewerPage")[0] as VncClient
+      this.vncClient.handleUnexpectedClose = () => {
+        AlertDialog.show({
+          title: $r('app.string.connect_fail_title'),
+          message: $r('app.string.connect_fail_message'),
+          alignment: DialogAlignment.Center,
+          confirm: {
+            value: $r('app.string.choice_ok'),
+            action: () => {
+              this.pageStack.pop()
+            }
+          }
+        })
+      }
     })
     .backgroundColor(Color.Black)
     .onMouse((event) => {

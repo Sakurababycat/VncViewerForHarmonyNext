@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include "hilog/log.h"
 #include "multimodalinput/oh_key_code.h"
+#include <sys/ioctl.h>
+#include "setjmp.h"
 
 #undef LOG_DOMAIN
 #undef LOG_TAG

@@ -43,6 +43,14 @@
     {
       "name": "choice_cancle",
       "value": "no"
+    },
+    {
+      "name": "connect_fail_title",
+      "value": "connection failed"
+    },
+    {
+      "name": "connect_fail_message",
+      "value": "connection to server failed"
     }
   ]
 }

@@ -6,12 +6,13 @@
 #include <cstdint>
 #include "string"
 #include <multimodalinput/oh_key_code.h>
+#include <stdexcept>
 #include <sys/types.h>
 
-#define napi_throw_error_m(code, fmt, ...)                                                                                        \
+#define napi_throw_error_m(code, fmt, ...)                                                                             \
     {                                                                                                                  \
         char errStr[64];                                                                                               \
-        sprintf(errStr, fmt, __VA_ARGS__);                                           \
+        sprintf(errStr, fmt, __VA_ARGS__);                                                                             \
         napi_throw_error(env, #code, errStr);                                                                          \
     }
 
@@ -141,8 +142,11 @@ static napi_value vncInit(napi_env env, napi_callback_info info) {
     // OH_LOG_INFO(LOG_APP, "address %{public}s %{public}d %{public}s", address.c_str(), port, passwd.c_str());
 
     VncViewer::setViewer(address.c_str(), port, passwd.c_str());
-    VncViewer::initViewer(onResize);
 
+    try {
+        VncViewer::initViewer(onResize);
+    } catch (std::runtime_error e) {
+    }
 
     return frameBufferNV;
 }
@@ -173,22 +177,19 @@ static napi_value mouseEvent(napi_env env, napi_callback_info info) {
     napi_valuetype val_type;
     napi_typeof(env, args[0], &val_type);
     if (napi_number != val_type) {
-        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type)
-        return nullptr;
+        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type) return nullptr;
     }
     napi_get_value_int32(env, args[0], &x);
 
     napi_typeof(env, args[1], &val_type);
     if (napi_number != val_type) {
-        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type)
-        return nullptr;
+        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type) return nullptr;
     }
     napi_get_value_int32(env, args[1], &y);
 
     napi_typeof(env, args[2], &val_type);
     if (napi_number != val_type) {
-        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type)
-        return nullptr;
+        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type) return nullptr;
     }
     napi_get_value_int32(env, args[2], &buttonMask);
     // OH_LOG_INFO(LOG_APP, "mouse: x_%{public}d, y_%{public}d, btn_%{public}d", x, y, buttonMask);
@@ -211,22 +212,21 @@ static napi_value keyEvent(napi_env env, napi_callback_info info) {
     napi_valuetype val_type;
     napi_typeof(env, args[0], &val_type);
     if (napi_number != val_type) {
-        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type)
-        return nullptr;
+        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type) return nullptr;
     }
     napi_get_value_uint32(env, args[0], &key);
 
     napi_typeof(env, args[1], &val_type);
     if (napi_boolean != val_type) {
-        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type)
-        return nullptr;
+        napi_throw_error_m(-12, "type error: %d, expect 'napi_string'", val_type) return nullptr;
     }
-    napi_get_value_bool(env, args[1],  &down);
+    napi_get_value_bool(env, args[1], &down);
 
     VncViewer::keyEvent(ohKeyCode2RFBKeyCode((Input_KeyCode)key, down), down);
-    
-    // OH_LOG_INFO(LOG_APP, "keyEvent: key_%{public}d, down_%{public}d", ohKeyCode2RFBKeyCode((Input_KeyCode)key), down);
-    
+
+    // OH_LOG_INFO(LOG_APP, "keyEvent: key_%{public}d, down_%{public}d", ohKeyCode2RFBKeyCode((Input_KeyCode)key),
+    // down);
+
     return nullptr;
 }
 

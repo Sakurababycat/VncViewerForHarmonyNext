@@ -34,7 +34,7 @@ export function update(onResize: (x: Uint8Array) => void,
   return ret
 }
 
-export function vncInit(address: string, port: number, passwd: string): Uint8Array {
+export function vncInit(address: string, port: number, passwd: string): Uint8Array | undefined {
   return native.vncInit(address, port, passwd)
 }
 
