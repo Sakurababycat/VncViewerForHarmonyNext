@@ -40,8 +40,14 @@ public:
     static int waitForMessage(onResizeCallback, onUpdateCallback);
     static void initViewer(onResizeCallback);
     static void setViewer(const char *, int, const char *);
-    static void mouseEvent(int x, int y, int buttonMask) { SendPointerEvent(VncViewer::cl, x, y, buttonMask); }
-    static void keyEvent(rfbKeySym key, rfbBool down) { SendKeyEvent(VncViewer::cl, key, down); }
+    static void mouseEvent(int x, int y, int buttonMask) {
+        if (checkConnection())
+            SendPointerEvent(VncViewer::cl, x, y, buttonMask);
+    }
+    static void keyEvent(rfbKeySym key, rfbBool down) {
+        if (checkConnection())
+            SendKeyEvent(VncViewer::cl, key, down);
+    }
     VncViewer() = delete;
 
 private:
@@ -52,6 +58,7 @@ private:
     static char *getPasswd(rfbClient *);
     static rfbBool resize(rfbClient *);
     static char passwd[RFB_BUF_SIZE];
+    static bool checkConnection();
 };
 
 #endif // SIMPLEVNC_VNC_VIEWER_H

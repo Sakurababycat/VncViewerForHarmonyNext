@@ -51,6 +51,10 @@
     {
       "name": "connect_fail_message",
       "value": "连接远程VNC服务失败"
+    },
+    {
+      "name": "connect_fail_btn_msg",
+      "value": "回到首页"
     }
   ]
 }

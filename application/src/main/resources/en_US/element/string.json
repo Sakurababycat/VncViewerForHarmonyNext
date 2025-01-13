@@ -51,6 +51,10 @@
     {
       "name": "connect_fail_message",
       "value": "failed to establish connection to vnc server"
+    },
+    {
+      "name": "connect_fail_btn_msg",
+      "value": "back to main page"
     }
   ]
 }

@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <stdexcept>
 #include <unistd.h>
+#include "sys/wait.h"
 
 rfbClient *VncViewer::cl = nullptr;
 VncViewer::onResizeCallback VncViewer::onResize = nullptr;
@@ -28,7 +29,35 @@ void VncViewer::update(rfbClient *cl, int x, int y, int w, int h) {
     }
 }
 
+bool VncViewer::checkConnection() {
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Child process
+        int optval;
+        socklen_t optlen = sizeof(optval);
+        if (getsockopt(cl->sock, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1) {
+            _exit(EXIT_FAILURE);
+        }
+        if (optval != 0) {
+            _exit(EXIT_FAILURE);
+        }
+        _exit(0);
+    } else {
+        // Parent process
+        int status;
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 int VncViewer::waitForMessage(VncViewer::onResizeCallback onResize, VncViewer::onUpdateCallback onUpdate) {
+    if (!checkConnection()) {
+        return -1;
+    }
     VncViewer::onResize = onResize;
     VncViewer::onUpdate = onUpdate;
 
@@ -53,8 +82,10 @@ char *VncViewer::getPasswd(rfbClient *cl) {
 }
 
 void VncViewer::closeViewer() {
-    rfbCloseSocket(VncViewer::cl->sock);
-    delete VncViewer::cl;
+    if (checkConnection()) {
+        rfbCloseSocket(cl->sock);
+        delete VncViewer::cl;
+    }
 }
 
 rfbBool VncViewer::resize(rfbClient *cl) {

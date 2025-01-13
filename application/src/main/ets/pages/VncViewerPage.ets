@@ -16,7 +16,6 @@ struct ViewPage {
   private checkUpdateTimer: number = -1;
   private freshCanvasTimer: number = -1;
   private checkVncUpdateFlag: boolean = false;
-  private updateCanvasFlag: boolean = false;
   private checkVncUpdateLock: ArkTSUtils.locks.AsyncLock = new ArkTSUtils.locks.AsyncLock()
   private updateCanvasLock: ArkTSUtils.locks.AsyncLock = new ArkTSUtils.locks.AsyncLock()
   private canvasSize: Size = display.getDefaultDisplaySync()
@@ -32,10 +31,10 @@ struct ViewPage {
 
   onPageHide(): void {
     this.vncClient?.close()
+    this.vncClient = undefined
     clearInterval(this.checkUpdateTimer)
     clearInterval(this.freshCanvasTimer)
     this.checkVncUpdateFlag = false
-    this.updateCanvasFlag = false
   }
 
   onPageShow(): void {
@@ -43,7 +42,7 @@ struct ViewPage {
 
   checkVncUpdate() {
     // console.info(`check vnc update...`)
-    this.vncClient?.checkUpdate((x) => {
+    let status = this.vncClient?.checkUpdate((x) => {
       let pixelMap = this.vncClient?.getUpdatePixelMap(x)
 
       if ((x.width != this.canvasSize.width && x.height != this.canvasSize.height) ||
@@ -58,38 +57,35 @@ struct ViewPage {
         this.leftShift = (this.canvasSize.width - x.width) / 2
         this.upShift = (this.canvasSize.height - x.height) / 2
       }
-
-      this.updateCanvasLock.lockAsync(() => {
-        this.context.canvas.drawImage(pixelMap, x.x + this.leftShift, x.y + this.upShift)
-      })
+      this.context.canvas.drawImage(pixelMap, x.x + this.leftShift, x.y + this.upShift)
     })
+    if (!status) {
+      this.onConnectionError()
+    }
   }
 
   startCount() {
     this.checkVncUpdateFlag = true
-    this.updateCanvasFlag = true
 
-    this.checkUpdateTimer = setInterval(() => {
+    this.freshCanvasTimer = setInterval(() => {
       if (this.checkVncUpdateFlag) {
-        this.checkVncUpdateLock.lockAsync(() => {
+        this.updateCanvasLock.lockAsync(() => {
           this.checkVncUpdateFlag = false
-        })
-        this.checkVncUpdate()
-        this.checkVncUpdateLock.lockAsync(() => {
+          this.context.invalidate()
           this.checkVncUpdateFlag = true
         })
       }
     }, 1000 / 60)
 
-    this.freshCanvasTimer = setInterval(() => {
-      if (this.updateCanvasFlag) {
-        this.updateCanvasLock.lockAsync(() => {
-          this.updateCanvasFlag = false
-          this.context.invalidate()
-          this.updateCanvasFlag = true
+    this.checkUpdateTimer = setInterval(() => {
+      if (this.checkVncUpdateFlag) {
+        this.checkVncUpdateLock.lockAsync(() => {
+          this.checkVncUpdateFlag = false
+          this.checkVncUpdate()
+          this.checkVncUpdateFlag = true
         })
       }
-    }, 1000 / 60)
+    }, 1000 / 30)
   }
 
   build() {
@@ -159,19 +155,6 @@ struct ViewPage {
     .onReady((context) => {
       this.pageStack = context.pathStack
       this.vncClient = this.pageStack.getParamByName("VncViewerPage")[0] as VncClient
-      this.vncClient.handleUnexpectedClose = () => {
-        AlertDialog.show({
-          title: $r('app.string.connect_fail_title'),
-          message: $r('app.string.connect_fail_message'),
-          alignment: DialogAlignment.Center,
-          confirm: {
-            value: $r('app.string.choice_ok'),
-            action: () => {
-              this.pageStack.pop()
-            }
-          }
-        })
-      }
     })
     .backgroundColor(Color.Black)
     .onMouse((event) => {
@@ -183,16 +166,17 @@ struct ViewPage {
         this.mouseX = x - this.leftShift
         this.mouseY = y - this.upShift
       }
-      if (event.action == MouseAction.Press) {
-        this.mouseStat |= button2rfb.get(event.button) ?? 0
-      } else if (event.action == MouseAction.Release) {
-        this.mouseStat &= ~(button2rfb.get(event.button) ?? 0)
+
+      if (event.button != MouseButton.Left) { // left click was handled by on Touch
+        if (event.action == MouseAction.Press) {
+          this.mouseStat |= button2rfb.get(event.button) ?? 0
+        } else if (event.action == MouseAction.Release) {
+          this.mouseStat &= ~(button2rfb.get(event.button) ?? 0)
+        }
+
+        this.vncClient?.onMouseEvent(this.mouseX, this.mouseY, this.mouseStat)
+        // console.info(`Mouse button:${buttonMapStr.get(event.button)}, action: ${actionMapStr.get(event.action)}, pos: (${this.mouseX},${this.mouseY}), stat: ${this.mouseStat}`)
       }
-
-      this.vncClient?.onMouseEvent(this.mouseX, this.mouseY, this.mouseStat)
-
-
-      // console.info(`Mouse button:${buttonMapStr.get(event.button)}, action: ${actionMapStr.get(event.action)}, pos: (${x},${y}), stat: ${this.mouseStat}`)
     })
     .onKeyEvent((event) => {
 
@@ -202,8 +186,13 @@ struct ViewPage {
     .onTouch((event) => {
       let equivalentMouseBtn = MouseButton.None
 
-      let x = vp2px(event.touches[0].displayX) / this.windowScale - this.leftShift
-      let y = vp2px(event.touches[0].displayY) / this.windowScale - this.upShift
+      let x = vp2px(event.touches[0].displayX) / this.windowScale
+      let y = vp2px(event.touches[0].displayY) / this.windowScale
+
+      if (event.touches[0].displayX != 0 || event.touches[0].displayY != 0 || event.touches[0].type == TouchType.Move) {
+        this.mouseX = x - this.leftShift
+        this.mouseY = y - this.upShift
+      }
 
       switch (event.touches.length) {
         case 1:
@@ -229,9 +218,24 @@ struct ViewPage {
           break
       }
 
-      this.vncClient?.onMouseEvent(x, y, this.mouseStat)
+      this.vncClient?.onMouseEvent(this.mouseX, this.mouseY, this.mouseStat)
 
-      // console.info(`Mouse button:${buttonMapStr.get(equivalentMouseBtn)}, type: ${event.type}, pos: (${x},${y}), stat: ${this.mouseStat}`)
+      // console.info(`Touch: ${buttonMapStr.get(equivalentMouseBtn)}, type: ${event.type}, pos: (${this.mouseX},${this.mouseY}), stat: ${this.mouseStat}`)
+    })
+  }
+
+  onConnectionError() {
+    this.onPageHide()
+    AlertDialog.show({
+      title: $r('app.string.connect_fail_title'),
+      message: $r('app.string.connect_fail_message'),
+      alignment: DialogAlignment.Center,
+      confirm: {
+        value: $r('app.string.connect_fail_btn_msg'),
+        action: () => {
+          this.pageStack.pop()
+        }
+      }
     })
   }
 }

@@ -7,7 +7,6 @@
 #include "string"
 #include <multimodalinput/oh_key_code.h>
 #include <stdexcept>
-#include <sys/types.h>
 
 #define napi_throw_error_m(code, fmt, ...)                                                                             \
     {                                                                                                                  \
@@ -83,10 +82,13 @@ static napi_value update(napi_env env, napi_callback_info info) {
         napi_call_function(env, nullptr, args[1], 1, &jsInfo, nullptr);
     };
 
-    VncViewer::waitForMessage(onResize, onUpdate);
-
-ErrExit:
-    return nullptr;
+    int retVal = VncViewer::waitForMessage(onResize, onUpdate);
+    napi_value ret;
+    if (napi_ok != napi_create_int32(env, retVal, &ret)) {
+        napi_throw_error(env, "-10", "napi_create_int32 error.");
+        return nullptr;
+    }
+    return ret;
 }
 
 static std::string value2String(napi_env env, napi_value value) {
@@ -146,6 +148,7 @@ static napi_value vncInit(napi_env env, napi_callback_info info) {
     try {
         VncViewer::initViewer(onResize);
     } catch (std::runtime_error e) {
+        OH_LOG_INFO(LOG_APP, "connect error: %{public}s", e.what());
     }
 
     return frameBufferNV;

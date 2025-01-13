@@ -8,6 +8,13 @@ export struct HistorySelector {
   private historyStorage?: HistoryStorage;
   private current: string = ""
   @State private checked: number = -1
+  @State private recList: ConnectionRecord[] = []
+
+  aboutToAppear(): void {
+    if (this.historyStorage) {
+      this.recList = this.historyStorage.records.slice().reverse()
+    }
+  }
 
   build() {
     Stack() {
@@ -19,7 +26,7 @@ export struct HistorySelector {
           .fontSize(16)
           .margin({ top: 3 })
         List({ space: 10 }) {
-          ForEach(this.historyStorage?.records.slice().reverse(), (item: ConnectionRecord, index) => {
+          ForEach(this.recList, (item: ConnectionRecord, index) => {
             ListItem() {
               Column() {
                 Row() {
@@ -47,7 +54,7 @@ export struct HistorySelector {
                   .onClick(() => {
                     this.historyStorage?.remove(this.historyStorage?.records.length - 1 - index)
                     this.checked = -1
-                    this.controller.close()
+                    this.aboutToAppear()
                   })
                 }
               }

@@ -51,6 +51,10 @@
     {
       "name": "connect_fail_message",
       "value": "connection to server failed"
+    },
+    {
+      "name": "connect_fail_btn_msg",
+      "value": "main page"
     }
   ]
 }
