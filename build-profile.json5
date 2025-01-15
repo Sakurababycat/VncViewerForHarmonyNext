@@ -68,14 +68,6 @@
     {
       "name": "n_vnc",
       "srcPath": "./n_vnc",
-      "targets": [
-        {
-          "name": "default",
-          "applyToProducts": [
-            "default"
-          ]
-        }
-      ]
     }
   ]
 }
