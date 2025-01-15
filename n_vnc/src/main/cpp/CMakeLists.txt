@@ -64,6 +64,9 @@ check_include_file("arpa/inet.h"   HAVE_ARPA_INET_H)
 check_include_file("stdint.h"      HAVE_STDINT_H)
 check_include_file("stddef.h"      HAVE_STDDEF_H)
 check_include_file("sys/types.h"   HAVE_SYS_TYPES_H)
+check_include_file("sys/time.h"    LIBVNCSERVER_HAVE_SYS_TIME_H)
+check_include_file("sys/socket.h"  LIBVNCSERVER_HAVE_SYS_SOCKET_H)
+check_include_file("netinet/in.h"  LIBVNCSERVER_HAVE_NETINET_IN_H)
 
 if(HAVE_ARPA_INET_H)
   # in_addr_t
@@ -93,6 +96,11 @@ else()
   message(STATUS "Building crypto with builtin functions, only including SHA1 and D3DES")
   set(CRYPTO_SOURCES ${COMMON_DIR}/crypto_included.c ${COMMON_DIR}/sha1.c ${COMMON_DIR}/d3des.c)
 endif()
+
+check_type_size(pid_t     LIBVNCSERVER_PID_T)
+check_type_size(size_t    LIBVNCSERVER_SIZE_T)
+check_type_size(socklen_t LIBVNCSERVER_SOCKLEN_T)
+check_type_size(in_addr_t LIBVNCSERVER_IN_ADDR_T)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libvncserver/include/rfb/rfbconfig.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/include/rfb/rfbconfig.h)
 

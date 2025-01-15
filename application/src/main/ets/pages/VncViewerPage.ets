@@ -12,13 +12,12 @@ export function VncViewerPageBuilder() {
 @Entry
 @Component
 struct ViewPage {
-  private context: DrawingRenderingContext = new DrawingRenderingContext()
+  private canvasSize: Size = display.getDefaultDisplaySync()
+  private settings: RenderingContextSettings = new RenderingContextSettings(false)
+  private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings)
   private checkUpdateTimer: number = -1;
-  private freshCanvasTimer: number = -1;
   private checkVncUpdateFlag: boolean = false;
   private checkVncUpdateLock: ArkTSUtils.locks.AsyncLock = new ArkTSUtils.locks.AsyncLock()
-  private updateCanvasLock: ArkTSUtils.locks.AsyncLock = new ArkTSUtils.locks.AsyncLock()
-  private canvasSize: Size = display.getDefaultDisplaySync()
   private pageStack: NavPathStack = new NavPathStack()
   private vncClient?: VncClient
   private leftShift: number = -1
@@ -33,7 +32,6 @@ struct ViewPage {
     this.vncClient?.close()
     this.vncClient = undefined
     clearInterval(this.checkUpdateTimer)
-    clearInterval(this.freshCanvasTimer)
     this.checkVncUpdateFlag = false
   }
 
@@ -44,38 +42,28 @@ struct ViewPage {
     // console.info(`check vnc update...`)
     let status = this.vncClient?.checkUpdate((x) => {
       let pixelMap = this.vncClient?.getUpdatePixelMap(x)
-
-      if ((x.width != this.canvasSize.width && x.height != this.canvasSize.height) ||
-        (this.leftShift == -1 && this.upShift == -1)) {
-        console.info(`before scale: ${this.canvasSize.width} ${this.canvasSize.height}`)
-        this.windowScale = Math.min(this.canvasSize.width / x.width, this.canvasSize.height / x.height)
-        this.context.canvas.scale(this.windowScale, this.windowScale)
-        this.canvasSize.width /= this.windowScale
-        this.canvasSize.height /= this.windowScale
-        // await pixelMap.scale(scale, scale)
-        console.info(`after scale: ${this.canvasSize.width} ${this.canvasSize.height}`)
-        this.leftShift = (this.canvasSize.width - x.width) / 2
-        this.upShift = (this.canvasSize.height - x.height) / 2
+      if (pixelMap) {
+        if ((x.width * this.windowScale != this.canvasSize.width &&
+          x.height * this.windowScale != this.canvasSize.height) ||
+          (this.leftShift == -1 && this.upShift == -1)) {
+          this.windowScale = Math.min(this.canvasSize.width / x.width, this.canvasSize.height / x.height)
+          console.info(`window_scale: ${this.windowScale}`)
+          console.info(`${this.canvasSize.width}, ${this.canvasSize.height}`)
+          this.leftShift = (this.canvasSize.width - x.width * this.windowScale) / 2
+          this.upShift = (this.canvasSize.height - x.height * this.windowScale) / 2
+          this.context.scale(this.windowScale, this.windowScale)
+        }
+        this.context.drawImage(pixelMap, px2vp(x.x + this.leftShift), px2vp(x.y + this.upShift))
       }
-      this.context.canvas.drawImage(pixelMap, x.x + this.leftShift, x.y + this.upShift)
     })
     if (!status) {
+      console.info(`connection error...`)
       this.onConnectionError()
     }
   }
 
   startCount() {
     this.checkVncUpdateFlag = true
-
-    this.freshCanvasTimer = setInterval(() => {
-      if (this.checkVncUpdateFlag) {
-        this.updateCanvasLock.lockAsync(() => {
-          this.checkVncUpdateFlag = false
-          this.context.invalidate()
-          this.checkVncUpdateFlag = true
-        })
-      }
-    }, 1000 / 60)
 
     this.checkUpdateTimer = setInterval(() => {
       if (this.checkVncUpdateFlag) {
@@ -85,7 +73,7 @@ struct ViewPage {
           this.checkVncUpdateFlag = true
         })
       }
-    }, 1000 / 30)
+    }, 1000 / 60)
   }
 
   build() {
@@ -225,6 +213,13 @@ struct ViewPage {
   }
 
   onConnectionError() {
+    let retry = 3
+    while (retry--) {
+      if (this.vncClient?.connect()) {
+        console.info('reconnect success...')
+        return
+      }
+    }
     this.onPageHide()
     AlertDialog.show({
       title: $r('app.string.connect_fail_title'),

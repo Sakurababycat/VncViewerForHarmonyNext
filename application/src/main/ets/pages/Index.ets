@@ -137,13 +137,14 @@ struct Index {
             .width('10%')
             .onClick(
               () => {
-                let vncClient = new VncClient()
                 let address = this.address.split(':')
                 let passwd = this.passwd
                 let ip = address[0]
                 let port = Number.parseInt(address[1])
                 this.history.append({ address: this.address, passwd: this.passwd })
-                if (vncClient.init(ip, port, passwd)) {
+
+                let vncClient = new VncClient(ip, port, passwd)
+                if (vncClient.connect()) {
                   console.info(`path to the viewer page.`)
                   this.pageStack.pushPath({
                     name: "VncViewerPage", param: vncClient

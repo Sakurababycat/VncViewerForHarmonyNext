@@ -6,9 +6,9 @@
         "type": "HarmonyOS",
         "material": {
           "certpath": "C:\\Users\\29416\\.ohos\\config\\default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.cer",
-          "storePassword": "0000001B22F5CDB045374DD44D3F76A97EED205AC2751450D89473664BB3C73D882EBC6FDAFEEF717FF106",
+          "storePassword": "0000001BFA51D7699805AC953675B7E1EE84B15AC3FF1F3F9324F377861B45A29BB325B01BB5B21B1597BE",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B2D3E273C37F39A25A4E4C5B3198021AB7889CA62AB453429638C61ECA7A1EFA8EA81F950291E2C",
+          "keyPassword": "0000001B9D6AB776768121D9240BCFF0B77F85FC23DD35FD1C72A66FA12D6EBEF68E0078D24997FED31495",
           "profile": "C:\\Users\\29416\\.ohos\\config\\default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.p7b",
           "signAlg": "SHA256withECDSA",
           "storeFile": "C:\\Users\\29416\\.ohos\\config\\default_SimpleVnc_WMIEb_ocsI32POn3r3y3As1BJAUP_Ua-U7h5x6VqzJk=.p12"

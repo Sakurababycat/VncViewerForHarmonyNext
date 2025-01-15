@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include "sys/wait.h"
+#include "fcntl.h"
 
 rfbClient *VncViewer::cl = nullptr;
 VncViewer::onResizeCallback VncViewer::onResize = nullptr;
@@ -33,12 +34,8 @@ bool VncViewer::checkConnection() {
     pid_t pid = fork();
     if (pid == 0) {
         // Child process
-        int optval;
-        socklen_t optlen = sizeof(optval);
-        if (getsockopt(cl->sock, SOL_SOCKET, SO_ERROR, &optval, &optlen) == -1) {
-            _exit(EXIT_FAILURE);
-        }
-        if (optval != 0) {
+        int flags = fcntl(cl->sock, F_GETFL, 0);
+        if (flags == -1) {
             _exit(EXIT_FAILURE);
         }
         _exit(0);

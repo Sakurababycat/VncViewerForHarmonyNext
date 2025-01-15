@@ -3,20 +3,28 @@ import { image } from '@kit.ImageKit'
 
 export class VncClient {
   private pixelArray: Uint8Array = new Uint8Array([])
+  private address: string
+  private port: number
+  private passwd: string
 
-  init(address: string, port: number, passwd: string): boolean {
-    let a = vncInit(address, port, passwd)
-    if (a) {
-      this.pixelArray = a
-      return true
-    }
-    return false
+  constructor(address: string, port: number, passwd: string) {
+    this.address = address
+    this.port = port
+    this.passwd = passwd
   }
 
   close() {
     vncClose();
   }
 
+  connect(): boolean {
+    let a = vncInit(this.address, this.port, this.passwd)
+    if (a) {
+      this.pixelArray = a
+      return true
+    }
+    return false
+  }
 
   getUpdatePixelMap(x: UpdateInfo) {
     // console.info(`updateInfo: ${x}`)
